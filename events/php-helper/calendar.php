@@ -1,10 +1,11 @@
 <?php
 /**
- * Simple file manager class
+ * Simple calendar class
  *
- * @version    1.0
- * @author     Sam Collett
- * @license    http://github.com/SamWM/php-helper/blob/master/LICENSE
+ * @description   Show a calendar on a page and work with dates
+ * @version       1.0
+ * @author        Sam Collett
+ * @license       http://github.com/SamWM/php-helper/blob/master/LICENSE
  */
 class WMCalendar
 {
