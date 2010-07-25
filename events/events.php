@@ -2,8 +2,8 @@
 /**
  * Events
  *
- * @description   Store additional information about uploaded files. Search and list files matching that meta data
- * @version       1.0
+ * @description   Simple event management
+ * @version       1.0.1
  * @author        Sam Collett
  * @license       http://github.com/SamWM/get-simple-plugins/blob/master/LICENSE
  */
@@ -15,7 +15,7 @@ $thisfile=basename(__FILE__, ".php");
 register_plugin(
 	$thisfile, 
 	'Events', 	
-	'1.0', 		
+	'1.0.1', 		
 	'Sam Collett',
 	'http://www.texotela.co.uk', 
 	'Manage Events',
@@ -63,9 +63,17 @@ function events_preload()
 	if(is_file($events_path)) {
 		$events_xml = getXML($events_path);
 	}
-	else {
+	else
+	{
 		$events_xml = @new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><events></events>');
-		XMLsave($events_xml, $events_path);
+		if(function_exists("XMLsave"))
+		{
+			XMLsave($events_xml, $events_path);
+		}
+		else
+		{
+			$events_xml->asXML($events_path);
+		}
 	}
 	// set events_calendar_date
 	if(!empty($_GET['month']))
@@ -676,8 +684,12 @@ function events_manage($event_action)
 			$content_item->addCData($event_content);
 		}
 	}
-	
-	XMLsave($events_xml, $events_path);
+	if(function_exists("XMLsave"))
+	{
+		XMLsave($events_xml, $events_path);
+	}
+	else
+	{
+		$events_xml->asXML($events_path);
+	}
 }
-
-
