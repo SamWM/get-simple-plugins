@@ -3,7 +3,7 @@
  * Events
  *
  * @description   Simple event management
- * @version       1.0.1
+ * @version       1.0.2
  * @author        Sam Collett
  * @license       http://github.com/SamWM/get-simple-plugins/blob/master/LICENSE
  */
@@ -15,7 +15,7 @@ $thisfile=basename(__FILE__, ".php");
 register_plugin(
 	$thisfile, 
 	'Events', 	
-	'1.0.1', 		
+	'1.0.2', 		
 	'Sam Collett',
 	'http://www.texotela.co.uk', 
 	'Manage Events',
@@ -36,7 +36,7 @@ $events_base_url;
 $events_calendar_date;
 
 # class
-require(__DIR__.'/php-helper/calendar.php');
+require_once 'php-helper/calendar.php';
 
 # functions
 function events_preload()
