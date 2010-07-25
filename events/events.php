@@ -85,11 +85,11 @@ function events_preload()
 	{
 		if(!isset($qs_day)) $qs_day = 1;
 		if(!isset($qs_year)) $qs_year = date('Y');
-		$events_calendar_date = Calendar::today_if_null($qs_day.' '.$qs_month.' '.$qs_year);
+		$events_calendar_date = WMCalendar::today_if_null($qs_day.' '.$qs_month.' '.$qs_year);
 	}
 	else
 	{
-		$events_calendar_date = Calendar::today_if_null();
+		$events_calendar_date = WMCalendar::today_if_null();
 	}
 	// END set events_calendar_date
 	
@@ -269,7 +269,7 @@ function events_form()
 	
 	$today = time();
 	$events_calendar_date_formatted = date('j F Y', $events_calendar_date);
-	$calendar = new Calendar($events_calendar_date);
+	$calendar = new WMCalendar($events_calendar_date);
 
 	$formaction = $events_base_url.'month='.date('F', $events_calendar_date).'&year='.date('Y', $events_calendar_date).'&day='.date('j', $events_calendar_date);
 	$openform = '<form method="post" action="'.$formaction.'">';
@@ -446,10 +446,10 @@ function event_caption_render($event_date)
 {
 	global $events_base_url;
 	
-	$previous_month = Calendar::start_of_month($event_date) - Calendar::DAY;
+	$previous_month = WMCalendar::start_of_month($event_date) - WMCalendar::DAY;
 	$previous_month_link = '<a href="'.$events_base_url.'month='.date('F', $previous_month).'&year='.date('Y', $previous_month).'">'.date('F Y', $previous_month).'</a>';
 	
-	$next_month = Calendar::end_of_month($event_date) + Calendar::DAY;
+	$next_month = WMCalendar::end_of_month($event_date) + WMCalendar::DAY;
 	$next_month_link = '<a href="'.$events_base_url.'month='.date('F', $next_month).'&year='.date('Y', $next_month).'">'.date('F Y', $next_month).'</a>';
 	
 	return '<span class="previousmonth">'.$previous_month_link.'</span> &laquo; <span class="currentmonth">'.date('F Y', $event_date).'</span> &raquo; <span class="nextmonth">'.$next_month_link.'</span>';
@@ -504,8 +504,8 @@ function events_list($events = null, $base_url = null, $date_heading_tag = 'h2')
 			else
 			{
 				// this months events
-				$month_start = strtotime(date('j F Y', Calendar::start_of_month($events_calendar_date)));
-				$month_end = strtotime(date('j F Y', Calendar::end_of_month($events_calendar_date)));
+				$month_start = strtotime(date('j F Y', WMCalendar::start_of_month($events_calendar_date)));
+				$month_end = strtotime(date('j F Y', WMCalendar::end_of_month($events_calendar_date)));
 				$events = $events_xml->xpath('//events/event[@event_date>='.$month_start.' and @event_date<'.$month_end.']');
 			}
 		}
@@ -597,7 +597,7 @@ function events_calendar()
 {
 	global $events_calendar_date;
 
-	$calendar = new Calendar($events_calendar_date);
+	$calendar = new WMCalendar($events_calendar_date);
 	$output = $calendar->render('event_day_render', 'event_caption_render');
 	
 	return $output;
