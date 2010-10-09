@@ -3,7 +3,7 @@
  * Events
  *
  * @description   Simple event management
- * @version       1.0.2
+ * @version       2.1b
  * @author        Sam Collett
  * @license       http://github.com/SamWM/get-simple-plugins/blob/master/LICENSE
  */
@@ -15,7 +15,7 @@ $thisfile=basename(__FILE__, ".php");
 register_plugin(
 	$thisfile, 
 	'Events', 	
-	'1.0.2', 		
+	'2.1b', 		
 	'Sam Collett',
 	'http://www.texotela.co.uk', 
 	'Manage Events',
@@ -34,7 +34,6 @@ $events_path = GSDATAOTHERPATH.'events.xml';
 $events_xml;
 $events_base_url;
 $events_calendar_date;
-
 # class
 require_once 'php-helper/calendar.php';
 
@@ -93,7 +92,7 @@ function events_preload()
 	{
 		if(!isset($qs_day)) $qs_day = 1;
 		if(!isset($qs_year)) $qs_year = date('Y');
-		$events_calendar_date = WMCalendar::today_if_null($qs_day.' '.$qs_month.' '.$qs_year);
+		$events_calendar_date = WMCalendar::today_if_null($qs_year.'-'.$qs_month.'-'.$qs_day);
 	}
 	else
 	{
@@ -109,6 +108,55 @@ function events_preload()
 
 function events_header()
 {
+	global $EDTOOL, $EDLANG, $EDHEIGHT, $SITEURL;
+	if (defined('GSEDITORHEIGHT')) { $EDHEIGHT = GSEDITORHEIGHT .'px'; } else {	$EDHEIGHT = '500px'; }
+	if (defined('GSEDITORLANG')) { $EDLANG = GSEDITORLANG; } else {	$EDLANG = 'en'; }
+	if (defined('GSEDITORTOOL')) { $EDTOOL = GSEDITORTOOL; } else {	$EDTOOL = 'basic'; }
+	
+	
+	if ($EDTOOL == 'advanced') {
+		$toolbar = "
+				['Bold', 'Italic', 'Underline', 'NumberedList', 'BulletedList', 'JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock', 'Table', 'TextColor', 'BGColor', 'Link', 'Unlink', 'Image', 'RemoveFormat', 'Source'],
+	  '/',
+	  ['Styles','Format','Font','FontSize']
+  ";
+	} elseif ($EDTOOL == 'basic') {
+		$toolbar = "['Bold', 'Italic', 'Underline', 'NumberedList', 'BulletedList', 'JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock', 'Link', 'Unlink', 'Image', 'RemoveFormat', 'Source']";
+	} else {
+		$toolbar = GSEDITORTOOL;
+	}
+	$js = <<<JS
+	<script type="text/javascript" src="template/js/ckeditor/ckeditor.js"></script>
+	<script type="text/javascript" src="template/js/ckeditor/adapters/jquery.js"></script>
+	<script type="text/javascript">
+	var editor;
+	$(
+		function() {
+			$("input.delete").click(
+				function(e) {
+					if(!confirm('Are you sure you wish to delete this event?'))
+					{
+						e.preventDefault();
+					}
+				}
+			);
+			editor = $("textarea[name=event_content]").ckeditor(function(){},
+				{
+					skin : 'getsimple',
+					forcePasteAsPlainText : true,
+					language : '$EDLANG',
+					defaultLanguage : '$EDLANG',
+					entities : true,
+					uiColor : '#FFFFFF',
+					height: '$EDHEIGHT',
+					baseHref : '$SITEURL',
+					toolbar : [$toolbar]
+				}
+			).ckeditorGet();
+		}
+	)
+	</script>
+JS;
 	// preload data
 	events_preload();
 	echo <<<STYLE
@@ -154,21 +202,12 @@ function events_header()
 		width: 100%;
 		height: 100%;
 	}
+	
+	label.clear {
+		float: none;
+	}
 	</style>
-	<script type="text/javascript">
-	$(
-		function() {
-			$("input.delete").click(
-				function(e) {
-					if(!confirm('Are you sure you wish to delete this event?'))
-					{
-						e.preventDefault();
-					}
-				}
-			);
-		}
-	)
-	</script>
+	$js
 STYLE;
 }
 
@@ -272,14 +311,14 @@ function events_form()
 		}
 		
 		$events_calendar_date = (int)$event_date;
-		echo '<p><a href="'.$events_base_url.'month='.date('F', $events_calendar_date).'&year='.date('Y', $events_calendar_date).'&day='.date('j', $events_calendar_date).'">Cancel Edit</a></p>';
+		echo '<p><a href="'.$events_base_url.'month='.date('n', $events_calendar_date).'&year='.date('Y', $events_calendar_date).'&day='.date('j', $events_calendar_date).'">Cancel Edit</a></p>';
 	}
 	
 	$today = time();
 	$events_calendar_date_formatted = date('j F Y', $events_calendar_date);
 	$calendar = new WMCalendar($events_calendar_date);
 
-	$formaction = $events_base_url.'month='.date('F', $events_calendar_date).'&year='.date('Y', $events_calendar_date).'&day='.date('j', $events_calendar_date);
+	$formaction = $events_base_url.'month='.date('n', $events_calendar_date).'&year='.date('Y', $events_calendar_date).'&day='.date('j', $events_calendar_date);
 	$openform = '<form method="post" action="'.$formaction.'">';
 	if($new_event)
 	{
@@ -350,10 +389,8 @@ function events_form()
 				<input name="event_location" value="$event_location" />
 			</span>
 		</p>
-		<p>
-			<label>Content: </label>
-			<textarea name="event_content" class="rte">$event_content</textarea>
-		</p>
+		<label class="clear">Content: </label>
+		<textarea name="event_content" id="post-content">$event_content</textarea>
 		<p>
 			<input type="hidden" name="event_id" value="$event_id" />
 			$savebutton
@@ -404,7 +441,7 @@ function event_day_render($day)
 		}
 	}
 	$output = date('d', $day);
-	$link = '<a href="'.$events_base_url.'month='.date('F', $day).'&year='.date('Y', $day).'&day='.date('j', $day).'">'.$output.'</a>';
+	$link = '<a href="'.$events_base_url.'month='.date('n', $day).'&year='.date('Y', $day).'&day='.date('j', $day).'">'.$output.'</a>';
 	
 	$events = $events_xml->xpath('//events/event[@event_date='.strtotime(date('j F Y', $day)).']');
 	$event_count = count($events);
@@ -455,12 +492,12 @@ function event_caption_render($event_date)
 	global $events_base_url;
 	
 	$previous_month = WMCalendar::start_of_month($event_date) - WMCalendar::DAY;
-	$previous_month_link = '<a href="'.$events_base_url.'month='.date('F', $previous_month).'&year='.date('Y', $previous_month).'">'.date('F Y', $previous_month).'</a>';
+	$previous_month_link = '<a href="'.$events_base_url.'month='.date('n', $previous_month).'&year='.date('Y', $previous_month).'">'.strftime('%B %Y', $previous_month).'</a>';
 	
 	$next_month = WMCalendar::end_of_month($event_date) + WMCalendar::DAY;
-	$next_month_link = '<a href="'.$events_base_url.'month='.date('F', $next_month).'&year='.date('Y', $next_month).'">'.date('F Y', $next_month).'</a>';
+	$next_month_link = '<a href="'.$events_base_url.'month='.date('n', $next_month).'&year='.date('Y', $next_month).'">'.strftime('%B %Y', $next_month).'</a>';
 	
-	return '<span class="previousmonth">'.$previous_month_link.'</span> &laquo; <span class="currentmonth">'.date('F Y', $event_date).'</span> &raquo; <span class="nextmonth">'.$next_month_link.'</span>';
+	return utf8_encode('<span class="previousmonth">'.$previous_month_link.'</span> &laquo; <span class="currentmonth">'.strftime('%B %Y', $event_date).'</span> &raquo; <span class="nextmonth">'.$next_month_link.'</span>');
 }
 
 function events_sidebar($events = null)
@@ -483,7 +520,7 @@ function events_sidebar($events = null)
 function upcoming_events($base_url, $date_heading_tag, $limit = 3)
 {
 	global $events_xml;
-	$events = $events_xml->xpath('//events/event[@event_date>'.strtotime(date('j F Y', time())).'][position()<='.$limit.'] ');
+	$events = $events_xml->xpath('//events/event[@event_date>'.strtotime(date('j F Y', time())).'][position()<='.$limit.']');
 	return events_list($events, $base_url, $date_heading_tag);
 }
 
@@ -492,7 +529,7 @@ function events_list($events = null, $base_url = null, $date_heading_tag = 'h2')
 	global $events_base_url, $events_xml, $events_calendar_date;
 	if($base_url == null) $base_url = $events_base_url;
 	if(!stripos($base_url, '?')) $base_url .= '?';
-	if($events == null)
+	if($events === null)
 	{
 		if(isset($_GET['event_id']))
 		{
@@ -539,7 +576,7 @@ function events_list($events = null, $base_url = null, $date_heading_tag = 'h2')
 				}
 				else
 				{
-					$list .= '<'.$date_heading_tag .'><a href="'.$base_url.'month='.date('F', $event_date).'&year='.date('Y', $event_date).'">'.date('F Y', $event_date).'</a> &raquo; '.$date_formatted.'</'.$date_heading_tag.'>';
+					$list .= '<'.$date_heading_tag .'><a href="'.$base_url.'month='.date('n', $event_date).'&year='.date('Y', $event_date).'">'.date('F Y', $event_date).'</a> &raquo; '.$date_formatted.'</'.$date_heading_tag.'>';
 				}
 				if(!empty($_GET['day']))
 				{
@@ -558,14 +595,14 @@ function events_list($events = null, $base_url = null, $date_heading_tag = 'h2')
 				$current_content = $event->xpath('content');
 				if(count($current_content) > 0)
 				{
-					$content = '<br /><span class="event_details">'.nl2br(htmlentities($current_content[0][0])).'</span>';
+					$content = '<br /><span class="event_details">'.$current_content[0][0].'</span>';
 				}
 				$event_title = $event['event_title'];
 			}
 			else
 			{
 				// make event title a link
-				$event_title = '<a href="'.$base_url.'month='.date('F', $event_date).'&year='.date('Y', $event_date).'&day='.date('j', $event_date).'#event'.$event['event_id'].'">'.$event['event_title'].'</a>';
+				$event_title = '<a href="'.$base_url.'month='.date('n', $event_date).'&year='.date('Y', $event_date).'&day='.date('j', $event_date).'#event'.$event['event_id'].'">'.$event['event_title'].'</a>';
 			}
 			
 			$times = 'All day';
@@ -648,12 +685,12 @@ function events_manage($event_action)
 		if(!empty($_POST['event_title']) && !empty($_POST['event_date']))
 		{
 			$event_id = $_POST['event_id'];
-			$event_title = $_POST['event_title'];
+			$event_title = utf8_encode($_POST['event_title']);
 			$event_date = $_POST['event_date'];
 			$event_start_time = $_POST['event_start_time_hour'].':'.$_POST['event_start_time_minute'];
 			$event_end_time = $_POST['event_end_time_hour'].':'.$_POST['event_end_time_minute'];
-			$event_location = $_POST['event_location'];
-			$event_content = $_POST['event_content'];
+			$event_location = utf8_encode($_POST['event_location']);
+			$event_content = utf8_encode($_POST['event_content']);
 			// find the event in the XML document
 			$event_item = $events_xml->xpath('//events/event[@event_id="'.$event_id.'"]');
 			// if the event is not found
