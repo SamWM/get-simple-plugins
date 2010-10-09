@@ -14,8 +14,8 @@ $thisfile=basename(__FILE__, ".php");
 # register plugin
 register_plugin(
 	$thisfile, 
-	'Events', 	
-	'2.1b', 		
+	'Events',
+	'2.1b',
 	'Sam Collett',
 	'http://www.texotela.co.uk', 
 	'Manage Events',
@@ -403,7 +403,7 @@ FORM;
 	{
 		if(date('j F Y', $today) != date('j F Y', $events_calendar_date))
 		{
-			echo '<p>Go to <a href="'.$events_base_url.'today">Today</a> ('.date('j F Y', $today).')</p>';
+			echo '<p>Go to <a href="'.$events_base_url.'today">Today</a> ('.date('%e %B %Y', $today).')</p>';
 		}
 		echo $calendar->render('event_day_render', 'event_caption_render');
 		echo $form;
