@@ -3,7 +3,7 @@
  * Simple calendar class
  *
  * @description   Show a calendar on a page and work with dates
- * @version       1.0
+ * @version       1.1
  * @author        Sam Collett
  * @license       http://github.com/SamWM/php-helper/blob/master/LICENSE
  */
@@ -62,7 +62,7 @@ class WMCalendar
 
 		while( $day < $endofweek )
 		{
-			array_push($output, date("D", $day));
+			array_push($output, strftime("%a", $day));
 			$day = $day + WMCalendar::DAY;
 		}
 
@@ -117,7 +117,7 @@ class WMCalendar
 		}
 		if($caption_render == null)
 		{
-			$caption_render = create_function('$date', 'return date(\'F Y\', $date);');
+			$caption_render = create_function('$date', 'return strftime(\'%B %Y\', $date);');
 		}
 
 		$output = '';
