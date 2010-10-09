@@ -420,7 +420,7 @@ FORM;
 		echo $form;
 		if(date('j F Y', $today) != date('j F Y', $events_calendar_date))
 		{
-			echo '<p>Go to <a href="'.$events_base_url.'">Today</a> ('.date('j F Y', $today).')</p>';
+			echo '<p>Go to <a href="'.$events_base_url.'">Today</a> ('.strftime('%e %B %Y', $today).')</p>';
 		}
 		echo $calendar->render('event_day_render', 'event_caption_render');
 	}
