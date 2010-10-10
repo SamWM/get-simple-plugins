@@ -3,7 +3,7 @@
  * Events
  *
  * @description   Simple event management
- * @version       2.1b
+ * @version       2.1c
  * @author        Sam Collett
  * @license       http://github.com/SamWM/get-simple-plugins/blob/master/LICENSE
  */
@@ -15,7 +15,7 @@ $thisfile=basename(__FILE__, ".php");
 register_plugin(
 	$thisfile, 
 	'Events',
-	'2.1b',
+	'2.1c',
 	'Sam Collett',
 	'http://www.texotela.co.uk', 
 	'Manage Events',
@@ -565,7 +565,7 @@ function events_list($events = null, $base_url = null, $date_heading_tag = 'h2')
 		foreach($events as $event)
 		{
 			$event_date = (int)$event['event_date'];
-			$date_formatted = date('j F Y', $event_date);
+			$date_formatted = date('%e %B %Y', $event_date);
 			if(!in_array($date_formatted, $date_headers))
 			{
 				array_push($date_headers, $date_formatted);
@@ -576,7 +576,7 @@ function events_list($events = null, $base_url = null, $date_heading_tag = 'h2')
 				}
 				else
 				{
-					$list .= '<'.$date_heading_tag .'><a href="'.$base_url.'month='.date('n', $event_date).'&year='.date('Y', $event_date).'">'.date('F Y', $event_date).'</a> &raquo; '.$date_formatted.'</'.$date_heading_tag.'>';
+					$list .= '<'.$date_heading_tag .'><a href="'.$base_url.'month='.date('n', $event_date).'&year='.date('Y', $event_date).'">'.strftime('%B %Y', $event_date).'</a> &raquo; '.$date_formatted.'</'.$date_heading_tag.'>';
 				}
 				if(!empty($_GET['day']))
 				{
