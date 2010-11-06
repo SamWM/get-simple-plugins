@@ -1,9 +1,9 @@
-<?php
+﻿<?php
 /**
  * Events
  *
  * @description   Simple event management
- * @version       2.1c
+ * @version       2.1d
  * @author        Sam Collett
  * @license       http://github.com/SamWM/get-simple-plugins/blob/master/LICENSE
  */
@@ -15,7 +15,7 @@ $thisfile=basename(__FILE__, ".php");
 register_plugin(
 	$thisfile, 
 	'Events',
-	'2.1c',
+	'2.1d',
 	'Sam Collett',
 	'http://www.texotela.co.uk', 
 	'Manage Events',
