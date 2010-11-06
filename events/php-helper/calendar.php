@@ -1,9 +1,9 @@
-<?php
+﻿<?php
 /**
  * Simple calendar class
  *
  * @description   Show a calendar on a page and work with dates
- * @version       1.1
+ * @version       1.1.1
  * @author        Sam Collett
  * @license       http://github.com/SamWM/php-helper/blob/master/LICENSE
  */
@@ -16,6 +16,8 @@ class WMCalendar
 	const MINUTE = 60;
 	// which day does the week start on (0 - 6)
 	const WEEK_START = 1;
+	// prefix week number with this, e.g. 'Week ' to get 'Week 2'
+	const WEEK_PREFIX = 'Week ';
 	
 	private $supplied_date;
 
@@ -82,7 +84,7 @@ class WMCalendar
 		}
 		if($caption_render == null)
 		{
-			$caption_render = create_function('$date', 'return \'Week \'.date(\'W\', $date);');
+			$caption_render = create_function('$date', 'return \''.WMCalendar::WEEK_PREFIX.'\'.date(\'W\', $date);');
 		}
 		$output = '<table class="WMCalendar"><caption>'.call_user_func($caption_render, $this->supplied_date).'</caption><thead><th>';
 		$output.= implode('</th><th>', WMCalendar::week_days($this->supplied_date));
