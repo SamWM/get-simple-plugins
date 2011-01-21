@@ -3,7 +3,7 @@
  * Events
  *
  * @description   Simple event management
- * @version       2.1d
+ * @version       2.1e
  * @author        Sam Collett
  * @license       http://github.com/SamWM/get-simple-plugins/blob/master/LICENSE
  */
@@ -15,7 +15,7 @@ $thisfile=basename(__FILE__, ".php");
 register_plugin(
 	$thisfile, 
 	'Events',
-	'2.1d',
+	'2.1e',
 	'Sam Collett',
 	'http://www.texotela.co.uk', 
 	'Manage Events',
@@ -403,12 +403,15 @@ FORM;
 	{
 		if(date('j F Y', $today) != date('j F Y', $events_calendar_date))
 		{
-			echo '<p>Go to <a href="'.$events_base_url.'today">Today</a> ('.date('%e %B %Y', $today).')</p>';
+			echo '<p>Go to <a href="'.$events_base_url.'today">Today</a> ('.strftime('%e %B %Y', $today).')</p>';
 		}
 		echo $calendar->render('event_day_render', 'event_caption_render');
 		echo $form;
 		
-		$current_events = $events_xml->xpath('//events/event[@event_date='.strtotime(date('j F Y', $events_calendar_date)).']');
+		// convert $events_calendar_date to string (minus time), then back to int to get the numerical representation of the date for midnight on the same day
+		$current_events = $events_xml->xpath('//events/event[@event_date='.strtotime(date('Y-m-d', $events_calendar_date)).']');
+		// old method (only works in English locale?)
+		//$current_events = $events_xml->xpath('//events/event[@event_date='.strtotime(date('j F Y', $events_calendar_date)).']');
 		$event_count = count($current_events);
 		if($event_count > 0)
 		{
@@ -443,7 +446,7 @@ function event_day_render($day)
 	$output = date('d', $day);
 	$link = '<a href="'.$events_base_url.'month='.date('n', $day).'&year='.date('Y', $day).'&day='.date('j', $day).'">'.$output.'</a>';
 	
-	$events = $events_xml->xpath('//events/event[@event_date='.strtotime(date('j F Y', $day)).']');
+	$events = $events_xml->xpath('//events/event[@event_date='.strtotime(date('Y-m-d', $day)).']');
 	$event_count = count($events);
 	$event_info = '';
 	if( stripos($events_base_url, 'admin') !== false)
@@ -505,7 +508,7 @@ function events_sidebar($events = null)
 	global $events_base_url, $events_xml;
 	if($events == null)
 	{
-		$events = $events_xml->xpath('//events/event[@event_date='.strtotime(date('j F Y', time())).']');
+		$events = $events_xml->xpath('//events/event[@event_date='.strtotime(date('Y-m-d', time())).']');
 	}
 	$event_count = count($events);
 	if($event_count > 0)
@@ -520,7 +523,7 @@ function events_sidebar($events = null)
 function upcoming_events($base_url, $date_heading_tag, $limit = 3)
 {
 	global $events_xml;
-	$events = $events_xml->xpath('//events/event[@event_date>'.strtotime(date('j F Y', time())).'][position()<='.$limit.']');
+	$events = $events_xml->xpath('//events/event[@event_date>'.strtotime(date('Y-m-d', time())).'][position()<='.$limit.']');
 	return events_list($events, $base_url, $date_heading_tag);
 }
 
@@ -544,13 +547,13 @@ function events_list($events = null, $base_url = null, $date_heading_tag = 'h2')
 			if(isset($_GET['day']))
 			{
 				// current calendar date events
-				$events = $events_xml->xpath('//events/event[@event_date='.strtotime(date('j F Y', $events_calendar_date)).']');
+				$events = $events_xml->xpath('//events/event[@event_date='.strtotime(date('Y-m-d', $events_calendar_date)).']');
 			}
 			else
 			{
 				// this months events
-				$month_start = strtotime(date('j F Y', WMCalendar::start_of_month($events_calendar_date)));
-				$month_end = strtotime(date('j F Y', WMCalendar::end_of_month($events_calendar_date)));
+				$month_start = strtotime(date('Y-m-d', WMCalendar::start_of_month($events_calendar_date)));
+				$month_end = strtotime(date('Y-m-d', WMCalendar::end_of_month($events_calendar_date)));
 				$events = $events_xml->xpath('//events/event[@event_date>='.$month_start.' and @event_date<'.$month_end.']');
 			}
 		}
@@ -565,7 +568,7 @@ function events_list($events = null, $base_url = null, $date_heading_tag = 'h2')
 		foreach($events as $event)
 		{
 			$event_date = (int)$event['event_date'];
-			$date_formatted = date('%e %B %Y', $event_date);
+			$date_formatted = strftime('%e %B %Y', $event_date);
 			if(!in_array($date_formatted, $date_headers))
 			{
 				array_push($date_headers, $date_formatted);
