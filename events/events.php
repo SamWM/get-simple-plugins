@@ -26,7 +26,11 @@ register_plugin(
 # activate filter
 add_action('index-pretemplate', 'events_preload');
 add_action('header', 'events_header');
-add_action('pages-sidebar','createSideMenu',array($thisfile,'Events')); 		
+add_action('pages-sidebar','createSideMenu',array($thisfile,'Events')); 
+
+// previous, next month link text. leave blank '' to use shortened month name
+$events_previous_month_text = ''; // e.g. 'prev &lt;&lt;'		
+$events_next_month_text = ''; // e.g. '&lt;&lt; next'	
 
 # path to xml file
 $events_path = GSDATAOTHERPATH.'events.xml';
@@ -98,6 +102,8 @@ function events_preload()
 	{
 		$events_calendar_date = WMCalendar::today_if_null();
 	}
+	// set to midnight
+	$events_calendar_date = gmmktime(0, 0, 0, date('n', $events_calendar_date), date('j', $events_calendar_date), date('Y', $events_calendar_date));
 	// END set events_calendar_date
 	
 	if (isset($_REQUEST["event_action"]))
@@ -315,8 +321,8 @@ function events_form()
 	$today = time();
 	// display as '<day> <month name> <year>'
 	$events_calendar_date_display = date('j F Y', $events_calendar_date);
-	// store as '<year>-<month>-<day>'
-	$events_calendar_date_store = date('Y-n-j', $events_calendar_date);
+	// store as number
+	$events_calendar_date_store =  $events_calendar_date;
 	$calendar = new WMCalendar($events_calendar_date);
 
 	$formaction = $events_base_url.'month='.date('n', $events_calendar_date).'&year='.date('Y', $events_calendar_date).'&day='.date('j', $events_calendar_date);
@@ -403,7 +409,7 @@ FORM;
 	{
 		if(date('j n Y', $today) != date('j n Y', $events_calendar_date))
 		{
-			echo '<p>Go to <a href="'.$events_base_url.'today">Today</a> ('.strftime('%e %B %Y', $today).')</p>';
+			echo '<p>Go to <a href="'.$events_base_url.'today">Today</a> ('.strftime('%#d %B %Y', $today).')</p>';
 		}
 		echo $calendar->render('event_day_render', 'event_caption_render');
 		echo $form;
@@ -423,7 +429,7 @@ FORM;
 		echo $form;
 		if(date('j n Y', $today) != date('j n Y', $events_calendar_date))
 		{
-			echo '<p>Go to <a href="'.$events_base_url.'">Today</a> ('.strftime('%e %B %Y', $today).')</p>';
+			echo '<p>Go to <a href="'.$events_base_url.'">Today</a> ('.strftime('%#d %B %Y', $today).')</p>';
 		}
 		echo $calendar->render('event_day_render', 'event_caption_render');
 	}
@@ -492,15 +498,35 @@ function event_day_render($day)
 
 function event_caption_render($event_date)
 {
-	global $events_base_url;
+	global $events_base_url, $events_previous_month_text, $events_next_month_text;
+	
+	// text after the previous month link
+	$previous_month_suffix = '';
 	
 	$previous_month = WMCalendar::start_of_month($event_date) - WMCalendar::DAY;
-	$previous_month_link = '<a href="'.$events_base_url.'month='.date('n', $previous_month).'&year='.date('Y', $previous_month).'">'.strftime('%B %Y', $previous_month).'</a>';
 	
-	$next_month = WMCalendar::end_of_month($event_date) + WMCalendar::DAY;
-	$next_month_link = '<a href="'.$events_base_url.'month='.date('n', $next_month).'&year='.date('Y', $next_month).'">'.strftime('%B %Y', $next_month).'</a>';
+	if(strlen($events_previous_month_text) == 0)
+	{
+		$events_previous_month_text = strftime('%B %Y', $previous_month);
+		$previous_month_suffix = ' &laquo; ';
+	}
 	
-	return utf8_encode('<span class="previousmonth">'.$previous_month_link.'</span> &laquo; <span class="currentmonth">'.strftime('%B %Y', $event_date).'</span> &raquo; <span class="nextmonth">'.$next_month_link.'</span>');
+	$previous_month_link = '<a href="'.$events_base_url.'month='.date('n', $previous_month).'&year='.date('Y', $previous_month).'">'.$events_previous_month_text.'</a>'.$previous_month_suffix;
+	
+	// text before the next month link
+	$next_month_prefix = '';
+	
+	$next_month = WMCalendar::end_of_month($event_date) + WMCalendar::DAY + 1;
+	
+	if(strlen($events_next_month_text) == 0)
+	{
+		$events_next_month_text = strftime('%B %Y', $next_month);
+		$next_month_prefix = ' &raquo; ';
+	}
+	
+	$next_month_link = $next_month_prefix.'<a href="'.$events_base_url.'month='.date('n', $next_month).'&year='.date('Y', $next_month).'">'.$events_next_month_text.'</a>';
+	
+	return utf8_encode('<span class="previousmonth">'.$previous_month_link.'</span> <span class="currentmonth">'.strftime('%B %Y', $event_date).'</span> <span class="nextmonth">'.$next_month_link.'</span>');
 }
 
 function events_sidebar($events = null)
@@ -568,7 +594,7 @@ function events_list($events = null, $base_url = null, $date_heading_tag = 'h2')
 		foreach($events as $event)
 		{
 			$event_date = (int)$event['event_date'];
-			$date_formatted = strftime('%e %B %Y', $event_date);
+			$date_formatted = strftime('%#d %B %Y', $event_date);
 			if(!in_array($date_formatted, $date_headers))
 			{
 				array_push($date_headers, $date_formatted);
