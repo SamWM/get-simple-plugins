@@ -289,7 +289,6 @@ function events_form()
 	
 	$event_title = '';
 	$event_date = '';
-	$event_date_formatted = '';
 	$event_start_time = '';
 	$event_end_time = '';
 	$event_location = '';
@@ -300,7 +299,6 @@ function events_form()
 	if(count($event_item) > 0) {
 		$event_title = $event_item[0]['event_title'];
 		$event_date = $event_item[0]['event_date'];
-		$event_date_formatted = $event_item[0]['event_date_formatted'];
 		$event_start_time = $event_item[0]['event_start_time'];
 		$event_end_time = $event_item[0]['event_end_time'];
 		$event_location = $event_item[0]['event_location'];
@@ -315,14 +313,16 @@ function events_form()
 	}
 	
 	$today = time();
-	$events_calendar_date_formatted = date('j n Y', $events_calendar_date);
+	// display as '<day> <month name> <year>'
+	$events_calendar_date_display = date('j F Y', $events_calendar_date);
+	// store as '<year>-<month>-<day>'
+	$events_calendar_date_store = date('Y-n-j', $events_calendar_date);
 	$calendar = new WMCalendar($events_calendar_date);
 
 	$formaction = $events_base_url.'month='.date('n', $events_calendar_date).'&year='.date('Y', $events_calendar_date).'&day='.date('j', $events_calendar_date);
 	$openform = '<form method="post" action="'.$formaction.'">';
 	if($new_event)
 	{
-		$event_date_formatted = $events_calendar_date_formatted;
 		$h2_text = "Add Event";
 	}
 	else
@@ -357,8 +357,8 @@ function events_form()
 		<p>
 			<label>Date: </label>
 			<span class="field">
-				$event_date_formatted
-				<input name="event_date" class="date" type="hidden" value="$event_date_formatted" />
+				$events_calendar_date_display
+				<input name="event_date" class="date" type="hidden" value="$events_calendar_date_store" />
 			</span>
 		</p>
 		<p>
@@ -714,8 +714,7 @@ function events_manage($event_action)
 			}
 			
 			$event_item['event_title'] = $event_title;
-			$event_item['event_date'] = strtotime($event_date);
-			$event_item['event_date_formatted'] = $event_date;
+			$event_item['event_date'] = $event_date;
 			$event_item['event_start_time'] = $event_start_time;
 			$event_item['event_end_time'] = $event_end_time;
 			$event_item['event_location'] = $event_location;
