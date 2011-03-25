@@ -3,7 +3,7 @@
  * Events
  *
  * @description   Simple event management
- * @version       2.1e
+ * @version       2.1f
  * @author        Sam Collett
  * @license       http://github.com/SamWM/get-simple-plugins/blob/master/LICENSE
  */
@@ -15,7 +15,7 @@ $thisfile=basename(__FILE__, ".php");
 register_plugin(
 	$thisfile, 
 	'Events',
-	'2.1e',
+	'2.1f',
 	'Sam Collett',
 	'http://www.texotela.co.uk', 
 	'Manage Events',
@@ -315,7 +315,7 @@ function events_form()
 	}
 	
 	$today = time();
-	$events_calendar_date_formatted = date('j F Y', $events_calendar_date);
+	$events_calendar_date_formatted = date('j n Y', $events_calendar_date);
 	$calendar = new WMCalendar($events_calendar_date);
 
 	$formaction = $events_base_url.'month='.date('n', $events_calendar_date).'&year='.date('Y', $events_calendar_date).'&day='.date('j', $events_calendar_date);
@@ -401,7 +401,7 @@ FORM;
 
 	if($new_event)
 	{
-		if(date('j F Y', $today) != date('j F Y', $events_calendar_date))
+		if(date('j n Y', $today) != date('j n Y', $events_calendar_date))
 		{
 			echo '<p>Go to <a href="'.$events_base_url.'today">Today</a> ('.strftime('%e %B %Y', $today).')</p>';
 		}
@@ -421,7 +421,7 @@ FORM;
 	else
 	{
 		echo $form;
-		if(date('j F Y', $today) != date('j F Y', $events_calendar_date))
+		if(date('j n Y', $today) != date('j n Y', $events_calendar_date))
 		{
 			echo '<p>Go to <a href="'.$events_base_url.'">Today</a> ('.strftime('%e %B %Y', $today).')</p>';
 		}
@@ -439,7 +439,7 @@ function event_day_render($day)
 		{
 			$event_date = (int)$selected_event[0]['event_date'];
 			$qs_day = date('j', $event_date);
-			$qs_month = date('F', $event_date);
+			$qs_month = date('n', $event_date);
 			$qs_year = date('Y', $event_date);
 		}
 	}
