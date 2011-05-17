@@ -1,9 +1,9 @@
-﻿<?php
+<?php
 /**
  * Events
  *
  * @description   Simple event management
- * @version       2.1f
+ * @version       2.1g
  * @author        Sam Collett
  * @license       http://github.com/SamWM/get-simple-plugins/blob/master/LICENSE
  */
@@ -13,9 +13,9 @@ $thisfile=basename(__FILE__, ".php");
 
 # register plugin
 register_plugin(
-	$thisfile, 
+    $thisfile, 
 	'Events',
-	'2.1f',
+	'2.1g',
 	'Sam Collett',
 	'http://www.texotela.co.uk', 
 	'Manage Events',
@@ -146,19 +146,23 @@ function events_header()
 					}
 				}
 			);
-			editor = $("textarea[name=event_content]").ckeditor(function(){},
-				{
-					skin : 'getsimple',
-					forcePasteAsPlainText : true,
-					language : '$EDLANG',
-					defaultLanguage : '$EDLANG',
-					entities : true,
-					uiColor : '#FFFFFF',
-					height: '$EDHEIGHT',
-					baseHref : '$SITEURL',
-					toolbar : [$toolbar]
-				}
-			).ckeditorGet();
+			var \$event_content = $("textarea[name='event_content']");
+			if(\$event_content.length > 0)
+			{
+				editor = \$event_content.ckeditor(function(){},
+					{
+						skin : 'getsimple',
+						forcePasteAsPlainText : true,
+						language : '$EDLANG',
+						defaultLanguage : '$EDLANG',
+						entities : true,
+						uiColor : '#FFFFFF',
+						height: '$EDHEIGHT',
+						baseHref : '$SITEURL',
+						toolbar : [$toolbar]
+					}
+				).ckeditorGet();
+			}
 		}
 	)
 	</script>
