@@ -674,7 +674,7 @@ EVENT;
 	}
 	else
 	{
-		$output = 'No events '.(isset($_GET['day']) ? ' on '.strftime('%#d %B %Y', $events_calendar_date) : ' in 'strftime('%B %Y', $events_calendar_date));
+		$output = 'No events '.(isset($_GET['day']) ? ' on '.strftime('%#d %B %Y', $events_calendar_date) : ' in '.strftime('%B %Y', $events_calendar_date));
 	}
 	
 	return $output;
