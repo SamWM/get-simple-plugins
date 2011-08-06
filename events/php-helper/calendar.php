@@ -3,7 +3,7 @@
  * Simple calendar class
  *
  * @description   Show a calendar on a page and work with dates
- * @version       1.1.1
+ * @version       1.2
  * @author        Sam Collett
  * @license       http://github.com/SamWM/php-helper/blob/master/LICENSE
  */
@@ -29,19 +29,19 @@ class WMCalendar
 	public static function start_of_month($date = null)
 	{
 		$time = WMCalendar::today_if_null($date);
-		return gmmktime(0, 0, 0, date('m', $time), 1, date('Y', $time));
+		return mktime(0, 0, 0, date('n', $time), 1, date('Y', $time));
 	}
 
 	public static function end_of_month($date = null)
 	{
 		$time = WMCalendar::today_if_null($date);
-		return gmmktime(0, 0, 0, date('m', $time), date('t', $time), date('Y', $time));
+		return mktime(0, 0, 0, date('n', $time), date('t', $time), date('Y', $time));
 	}
 
 	public static function start_of_week($date = null)
 	{
 		$time = WMCalendar::today_if_null($date);
-		$start = gmmktime(0, 0, 0, date('m', $time), (date('d', $time)+WMCalendar::WEEK_START)-date('w', $time), date('Y', $time));
+		$start = mktime(0, 0, 0, date('m', $time), (date('d', $time)+WMCalendar::WEEK_START)-date('w', $time), date('Y', $time));
 		if($start > $time) $start -= WMCalendar::WEEK;
 		return $start;
 	}

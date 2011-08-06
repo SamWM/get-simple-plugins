@@ -3,7 +3,7 @@
  * Events
  *
  * @description   Simple event management
- * @version       2.1h
+ * @version       2.1i
  * @author        Sam Collett
  * @license       http://github.com/SamWM/get-simple-plugins/blob/master/LICENSE
  */
@@ -15,7 +15,7 @@ $thisfile=basename(__FILE__, ".php");
 register_plugin(
 	$thisfile, 
 	'Events',
-	'2.1h',
+	'2.1i',
 	'Sam Collett',
 	'http://www.texotela.co.uk', 
 	'Manage Events',
@@ -24,13 +24,12 @@ register_plugin(
 );
 
 # activate filter
-add_action('index-pretemplate', 'events_preload');
 add_action('header', 'events_header');
 add_action('pages-sidebar','createSideMenu',array($thisfile,'Events')); 
 
 // previous, next month link text. leave blank '' to use shortened month name
-$events_previous_month_text = ''; // e.g. 'prev &lt;&lt;'		
-$events_next_month_text = ''; // e.g. '&lt;&lt; next'	
+$events_previous_month_text = ''; // e.g. 'prev &lt;&lt;'
+$events_next_month_text = ''; // e.g. '&lt;&lt; next'
 
 # path to xml file
 $events_path = GSDATAOTHERPATH.'events.xml';
@@ -95,7 +94,7 @@ function events_preload()
 	if(isset($qs_month))
 	{
 		if(!isset($qs_day)) $qs_day = 1;
-		if(!isset($qs_year)) $qs_year = gmdate('Y');
+		if(!isset($qs_year)) $qs_year = date('Y');
 		$events_calendar_date = WMCalendar::today_if_null($qs_year.'-'.$qs_month.'-'.$qs_day);
 	}
 	else
@@ -103,8 +102,9 @@ function events_preload()
 		$events_calendar_date = WMCalendar::today_if_null();
 	}
 	// set to midnight
-	$events_calendar_date = gmmktime(0, 0, 0, gmdate('n', $events_calendar_date), gmdate('j', $events_calendar_date), gmdate('Y', $events_calendar_date));
-	echo '<!-- '.$events_calendar_date.'-->';
+	$events_calendar_date = mktime(0, 0, 0, date('n', $events_calendar_date), date('j', $events_calendar_date), date('Y', $events_calendar_date));
+	
+	//echo '<!-- '.$events_calendar_date.'-->';
 	// END set events_calendar_date
 	
 	if (isset($_REQUEST["event_action"]))
@@ -119,7 +119,6 @@ function events_header()
 	if (defined('GSEDITORHEIGHT')) { $EDHEIGHT = GSEDITORHEIGHT .'px'; } else {	$EDHEIGHT = '500px'; }
 	if (defined('GSEDITORLANG')) { $EDLANG = GSEDITORLANG; } else {	$EDLANG = 'en'; }
 	if (defined('GSEDITORTOOL')) { $EDTOOL = GSEDITORTOOL; } else {	$EDTOOL = 'basic'; }
-	
 	
 	if ($EDTOOL == 'advanced') {
 		$toolbar = "
@@ -168,8 +167,6 @@ function events_header()
 	)
 	</script>
 JS;
-	// preload data
-	events_preload();
 	echo <<<STYLE
 	<style type="text/css">
 	span.field {
@@ -280,6 +277,9 @@ function build_time_options($hours, $minutes, $time)
 function events_form()
 {
 	global $events_base_url, $events_xml, $events_calendar_date;
+	// preload data
+	events_preload();
+	
 	// get events
 	$events = $events_xml->xpath('//events/event');
 	// get count of events
@@ -327,7 +327,7 @@ function events_form()
 		}
 		
 		$events_calendar_date = (int)$event_date;
-		echo '<p><a href="'.$events_base_url.'month='.gmdate('n', $events_calendar_date).'&year='.gmdate('Y', $events_calendar_date).'&day='.gmdate('j', $events_calendar_date).'">Cancel Edit</a></p>';
+		echo '<p><a href="'.$events_base_url.'month='.date('n', $events_calendar_date).'&year='.date('Y', $events_calendar_date).'&day='.date('j', $events_calendar_date).'">Cancel Edit</a></p>';
 	}
 	
 	$today = time();
@@ -337,7 +337,7 @@ function events_form()
 	$events_calendar_date_store =  $events_calendar_date;
 	$calendar = new WMCalendar($events_calendar_date);
 
-	$formaction = $events_base_url.'month='.gmdate('n', $events_calendar_date).'&year='.gmdate('Y', $events_calendar_date).'&day='.gmdate('j', $events_calendar_date);
+	$formaction = $events_base_url.'month='.date('n', $events_calendar_date).'&year='.date('Y', $events_calendar_date).'&day='.date('j', $events_calendar_date);
 	$openform = '<form method="post" action="'.$formaction.'">';
 	if($new_event)
 	{
@@ -419,7 +419,7 @@ FORM;
 
 	if($new_event)
 	{
-		if(gmdate('j n Y', $today) != gmdate('j n Y', $events_calendar_date))
+		if(date('j n Y', $today) != date('j n Y', $events_calendar_date))
 		{
 			echo '<p>Go to <a href="'.$events_base_url.'today">Today</a> ('.strftime('%#d %B %Y', $today).')</p>';
 		}
@@ -427,7 +427,7 @@ FORM;
 		echo $form;
 		
 		// convert $events_calendar_date to string (minus time), then back to int to get the numerical representation of the date for midnight on the same day
-		$current_events = $events_xml->xpath('//events/event[@event_date='.strtotime(gmdate('Y-m-d', $events_calendar_date)).']');
+		$current_events = $events_xml->xpath('//events/event[@event_date='.strtotime(date('Y-m-d', $events_calendar_date)).']');
 		
 		// old method (only works in English locale?)
 		//$current_events = $events_xml->xpath('//events/event[@event_date='.strtotime(date('j F Y', $events_calendar_date)).']');
@@ -440,7 +440,7 @@ FORM;
 	else
 	{
 		echo $form;
-		if(gmdate('j n Y', $today) != gmdate('j n Y', $events_calendar_date))
+		if(date('j n Y', $today) != date('j n Y', $events_calendar_date))
 		{
 			echo '<p>Go to <a href="'.$events_base_url.'">Today</a> ('.strftime('%#d %B %Y', $today).')</p>';
 		}
@@ -451,21 +451,28 @@ FORM;
 function event_day_render($day)
 {
 	global $events_base_url, $events_xml, $events_calendar_date;
+	// preload data
+	events_preload();
+	
 	if(!empty($_GET['event_id']))
 	{
 		$selected_event = $events_xml->xpath('//events/event[@event_id='.$_GET['event_id'].']');
 		if(count($selected_event) > 0)
 		{
 			$event_date = (int)$selected_event[0]['event_date'];
-			$qs_day = gmdate('j', $event_date);
-			$qs_month = gmdate('n', $event_date);
-			$qs_year = gmdate('Y', $event_date);
+			$qs_day = date('j', $event_date);
+			$qs_month = date('n', $event_date);
+			$qs_year = date('Y', $event_date);
 		}
 	}
-	$output = gmdate('d', $day);
-	$link = '<a href="'.$events_base_url.'month='.gmdate('n', $day).'&year='.gmdate('Y', $day).'&day='.gmdate('j', $day).'">'.$output.'</a>';
+	$output = date('d', $day);
+	$link = '<a href="'.$events_base_url.'month='.date('n', $day).'&year='.date('Y', $day).'&day='.date('j', $day).'">'.$output.'</a>';
 	
-	$events = $events_xml->xpath('//events/event[@event_date='.strtotime(gmdate('Y-m-d', $day)).']');
+	// selected date
+	$start = $day;
+	$end = $start + WMCalendar::DAY;
+	
+	$events = $events_xml->xpath('//events/event[@event_date>='.$start.' and @event_date<'.$end.']');
 	$event_count = count($events);
 	$event_info = '';
 	if( stripos($events_base_url, 'admin') !== false)
@@ -488,7 +495,7 @@ function event_day_render($day)
 	
 	if(isset($qs_day))
 	{
-		if(gmdate('j n Y', $day) == gmdate('j n Y', $events_calendar_date))
+		if(date('j n Y', $day) == date('j n Y', $events_calendar_date))
 		{
 			$output = '<div class="selected">'.$output.$event_info.'</div>';
 		}
@@ -497,7 +504,7 @@ function event_day_render($day)
 			$output = $link.$event_info;
 		}
 	}
-	else if(gmdate('j n Y', $day) == gmdate('j n Y', time()) && empty($_GET['month']))
+	else if(date('j n Y', $day) == date('j n Y', time()) && empty($_GET['month']))
 	{
 		$output = '<div class="selected">'.$output.$event_info.'</div>';
 	}
@@ -512,11 +519,15 @@ function event_day_render($day)
 function event_caption_render($event_date)
 {
 	global $events_base_url, $events_previous_month_text, $events_next_month_text;
+	// preload data
+	events_preload();
 	
 	// text after the previous month link
 	$previous_month_suffix = '';
 	
 	$previous_month = WMCalendar::start_of_month($event_date) - WMCalendar::DAY;
+	// set to midnight
+	$previous_month = mktime(0, 0, 0, date('n', $previous_month), date('j', $previous_month), date('Y', $previous_month));
 	
 	if(strlen($events_previous_month_text) == 0)
 	{
@@ -524,12 +535,14 @@ function event_caption_render($event_date)
 		$previous_month_suffix = ' &laquo; ';
 	}
 	
-	$previous_month_link = '<a href="'.$events_base_url.'month='.gmdate('n', $previous_month).'&year='.gmdate('Y', $previous_month).'">'.$events_previous_month_text.'</a>'.$previous_month_suffix;
+	$previous_month_link = '<a href="'.$events_base_url.'month='.date('n', $previous_month).'&year='.date('Y', $previous_month).'">'.$events_previous_month_text.'</a>'.$previous_month_suffix;
 	
 	// text before the next month link
 	$next_month_prefix = '';
 	
 	$next_month = WMCalendar::end_of_month($event_date) + WMCalendar::DAY + 1;
+	// set to midnight
+	$next_month = mktime(0, 0, 0, date('n', $next_month), date('j', $next_month), date('Y', $next_month));
 	
 	if(strlen($events_next_month_text) == 0)
 	{
@@ -537,7 +550,7 @@ function event_caption_render($event_date)
 		$next_month_prefix = ' &raquo; ';
 	}
 	
-	$next_month_link = $next_month_prefix.'<a href="'.$events_base_url.'month='.gmdate('n', $next_month).'&year='.gmdate('Y', $next_month).'">'.$events_next_month_text.'</a>';
+	$next_month_link = $next_month_prefix.'<a href="'.$events_base_url.'month='.date('n', $next_month).'&year='.date('Y', $next_month).'">'.$events_next_month_text.'</a>';
 	
 	return utf8_encode('<span class="previousmonth">'.$previous_month_link.'</span> <span class="currentmonth">'.strftime('%B %Y', $event_date).'</span> <span class="nextmonth">'.$next_month_link.'</span>');
 }
@@ -545,9 +558,12 @@ function event_caption_render($event_date)
 function events_sidebar($events = null)
 {
 	global $events_base_url, $events_xml;
+	// preload data
+	events_preload();
+	
 	if($events == null)
 	{
-		$events = $events_xml->xpath('//events/event[@event_date='.strtotime(gmdate('Y-m-d', time())).']');
+		$events = $events_xml->xpath('//events/event[@event_date='.strtotime(date('Y-m-d', time())).']');
 	}
 	$event_count = count($events);
 	if($event_count > 0)
@@ -562,13 +578,19 @@ function events_sidebar($events = null)
 function upcoming_events($base_url, $date_heading_tag, $limit = 3)
 {
 	global $events_xml;
-	$events = $events_xml->xpath('//events/event[@event_date>'.strtotime(gmdate('Y-m-d', time())).'][position()<='.$limit.']');
+	// preload data
+	events_preload();
+	
+	$events = $events_xml->xpath('//events/event[@event_date>'.strtotime(date('Y-m-d', time())).'][position()<='.$limit.']');
 	return events_list($events, $base_url, $date_heading_tag);
 }
 
 function events_list($events = null, $base_url = null, $date_heading_tag = 'h2')
 {
 	global $events_base_url, $events_xml, $events_calendar_date;
+	// preload data
+	events_preload();
+	
 	if($base_url == null) $base_url = $events_base_url;
 	if(!stripos($base_url, '?')) $base_url .= '?';
 	if($events === null)
@@ -585,14 +607,17 @@ function events_list($events = null, $base_url = null, $date_heading_tag = 'h2')
 		{
 			if(isset($_GET['day']))
 			{
+				// selected date
+				$start = $events_calendar_date;
+				$end = $start + WMCalendar::DAY;
 				// current calendar date events
-				$events = $events_xml->xpath('//events/event[@event_date='.strtotime(gmdate('Y-m-d', $events_calendar_date)).']');
+				$events = $events_xml->xpath('//events/event[@event_date>='.$start.' and @event_date<'.$end.']');
 			}
 			else
 			{
 				// this months events
-				$month_start = strtotime(gmdate('Y-m-d', WMCalendar::start_of_month($events_calendar_date)));
-				$month_end = strtotime(gmdate('Y-m-d', WMCalendar::end_of_month($events_calendar_date)));
+				$month_start = strtotime(date('Y-m-d', WMCalendar::start_of_month($events_calendar_date)));
+				$month_end = strtotime(date('Y-m-d', WMCalendar::end_of_month($events_calendar_date)));
 				$events = $events_xml->xpath('//events/event[@event_date>='.$month_start.' and @event_date<'.$month_end.']');
 			}
 		}
@@ -618,7 +643,7 @@ function events_list($events = null, $base_url = null, $date_heading_tag = 'h2')
 				}
 				else
 				{
-					$list .= '<'.$date_heading_tag .'><a href="'.$base_url.'month='.gmdate('n', $event_date).'&year='.gmdate('Y', $event_date).'">'.strftime('%B %Y', $event_date).'</a> &raquo; '.$date_formatted.'</'.$date_heading_tag.'>';
+					$list .= '<'.$date_heading_tag .'><a href="'.$base_url.'month='.date('n', $event_date).'&year='.date('Y', $event_date).'">'.strftime('%B %Y', $event_date).'</a> &raquo; '.$date_formatted.'</'.$date_heading_tag.'>';
 				}
 				if(!empty($_GET['day']))
 				{
@@ -644,7 +669,7 @@ function events_list($events = null, $base_url = null, $date_heading_tag = 'h2')
 			else
 			{
 				// make event title a link
-				$event_title = '<a href="'.$base_url.'month='.gmdate('n', $event_date).'&year='.gmdate('Y', $event_date).'&day='.gmdate('j', $event_date).'#event'.$event['event_id'].'">'.$event['event_title'].'</a>';
+				$event_title = '<a href="'.$base_url.'month='.date('n', $event_date).'&year='.date('Y', $event_date).'&day='.date('j', $event_date).'#event'.$event['event_id'].'">'.$event['event_title'].'</a>';
 			}
 			
 			$times = 'All day';
@@ -683,6 +708,8 @@ EVENT;
 function events_calendar()
 {
 	global $events_calendar_date;
+	// preload data
+	events_preload();
 
 	$calendar = new WMCalendar($events_calendar_date);
 	$output = $calendar->render('event_day_render', 'event_caption_render');
@@ -709,6 +736,7 @@ function events_sort_date($a, $b)
 function events_manage($event_action)
 {
 	global $events_xml, $events_path;
+	
 	if($event_action == 'Delete')
 	{
 		if(!empty($_POST['event_id']))
