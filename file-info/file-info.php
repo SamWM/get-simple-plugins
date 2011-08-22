@@ -3,8 +3,8 @@
  * File Meta Info
  * 
  * @description   Store additional information about uploaded files. Search and list files matching that meta data
- * @version       1.3.1
- * @author        Sam Collett
+ * @version       1.4
+ * @author	Sam Collett
  * @license       http://github.com/SamWM/get-simple-plugins/blob/master/LICENSE
  */
 
@@ -14,8 +14,8 @@ $thisfile=basename(__FILE__, ".php");
 # register plugin
 register_plugin(
 	$thisfile, 
-	'File Meta Info', 	
-	'1.3.1', 		
+	'File Meta Info',       
+	'1.4',	  
 	'Sam Collett',
 	'http://www.texotela.co.uk', 
 	'Save additional meta information for uploaded files. Search and list files matching that meta data.',
@@ -98,13 +98,21 @@ function file_meta_header()
 function file_meta_extras()
 {
 	global $file_meta_fields, $upload;
+	// path to the file
+	$path = (isset($_GET['path'])) ? $_GET['path'] : '';
+	// doesn't end with '/'
+	if($path != '' && substr($path, -1) != '/')
+	{
+    $path = $path.'/';
+	}
 	echo '<tr class="file_meta"><td colspan="4">
 	<form method="post" action="'.htmlentities($_SERVER['PHP_SELF'], ENT_QUOTES).'" class="file_meta_form">';
 	foreach($file_meta_fields as $text => $metakey)
 	{
-		echo $text.': <input name="meta_'.$metakey.'" value="'.file_meta_data($upload['name'], $metakey).'" class="'.$metakey.' meta" /> ';
+		echo $text.': <input name="meta_'.$metakey.'" value="'.file_meta_data($upload['name'], $path, $metakey).'" class="'.$metakey.' meta" /> ';
 	}
 	echo '<input type="hidden" name="file" value="'.$upload['name'].'" />
+	<input type="hidden" name="path" value="'.$path.'" />
 	<input type="submit" value="Save" name="file_meta" /><div class="notification"></span>
 	</form>
 	</td></tr>';
@@ -181,7 +189,13 @@ function file_meta_list($meta, $search)
 			{
 				$tooltip = ' title="'.$filetooltip[0].'"';
 			}
-			$list .= '<li class="'.$ext.'"><a href="'.$SITEURL.'data/uploads/'.rawurlencode($file['name']).'"'.$tooltip.'>'.$title.'</a> <span class="properties">('.$size.'. '.$date.')</span></li>'; 
+			$urlpath = $SITEURL.'data/uploads/'.htmlentities($file['path']).rawurlencode($file['name']);
+			$filepath = GSDATAUPLOADPATH.htmlentities($file['path']).rawurlencode($file['name']);
+			// check if the file actually exists
+			if(file_exists($filepath))
+			{
+	$list .= '<li class="'.$ext.'"><a href="'.$urlpath.'"'.$tooltip.'>'.$title.'</a> <span class="properties"></span></li>';
+			}
 		}
 		$list .= '</ul>';
 		return $list;
@@ -189,13 +203,13 @@ function file_meta_list($meta, $search)
 	return null;
 }
 
-function file_meta_data($file, $meta)
+function file_meta_data($file, $path, $meta)
 {
 	global $file_meta_xml;
 	$meta_data = '';
 	if(is_object($file_meta_xml))
 	{
-		$current = $file_meta_xml->xpath('//files/file[@name="'.$file.'"]');
+		$current = $file_meta_xml->xpath('//files/file[@name="'.$file.'" and @path="'.$path.'"]');
 		if(count($current) !== 0) {
 			$children = $current[0]->xpath($meta);
 			if(count($children) > 0)
@@ -211,6 +225,7 @@ function file_meta_update()
 {
 	global $file_meta_xml, $file_meta_path;
 	$file = '';
+	$path = '';
 	// meta data to update
 	$meta_update = array();
 	foreach($_REQUEST as $key => $value)
@@ -219,17 +234,20 @@ function file_meta_update()
 		$ar = array();
 		// if request key is file
 		if($key == "file") $file = $value;
+		// if request key is path
+		if($key == "path") $path = $value;
 		if(strpos($key, "meta_") === 0) {
 			$ar = explode('_',$key);
 			$meta_update[$ar[1]] = $value;
 		}
 	}
 	// find the file in the XML document
-	$file_item = $file_meta_xml->xpath('//files/file[@name="'.$file.'"]');
+	$file_item = $file_meta_xml->xpath('//files/file[@name="'.$file.'" and @path="'.$path.'"]');
 	// if the file is not found
 	if(count($file_item) === 0) {
 		$file_item = $file_meta_xml->addChild('file');
 		$file_item->addAttribute('name', $file);
+		$file_item->addAttribute('path', $path);
 	}
 	
 	// loop through all meta keys to update
@@ -252,5 +270,3 @@ function file_meta_update()
 		die("Meta Data saved");
 	}
 }
-
-
