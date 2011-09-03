@@ -3,7 +3,7 @@
  * Events
  *
  * @description   Simple event management
- * @version       2.1i
+ * @version       2.1j
  * @author        Sam Collett
  * @license       http://github.com/SamWM/get-simple-plugins/blob/master/LICENSE
  */
@@ -15,7 +15,7 @@ $thisfile=basename(__FILE__, ".php");
 register_plugin(
 	$thisfile, 
 	'Events',
-	'2.1i',
+	'2.1j',
 	'Sam Collett',
 	'http://www.texotela.co.uk', 
 	'Manage Events',
@@ -167,7 +167,10 @@ function events_header()
 	)
 	</script>
 JS;
-	echo <<<STYLE
+
+	if($_GET['id'] == "events")
+	{
+		echo <<<STYLE
 	<style type="text/css">
 	span.field {
 		line-height: 24px;
@@ -217,6 +220,7 @@ JS;
 	</style>
 	$js
 STYLE;
+	}
 }
 
 function pad_number(&$item, $key, $pad = 2)
