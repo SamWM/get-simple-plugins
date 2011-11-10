@@ -29,19 +29,19 @@ class WMCalendar
 	public static function start_of_month($date = null)
 	{
 		$time = WMCalendar::today_if_null($date);
-		return mktime(0, 0, 0, date('n', $time), 1, date('Y', $time));
+		return gmmktime(0, 0, 0, gmdate('n', $time), 1, gmdate('Y', $time));
 	}
 
 	public static function end_of_month($date = null)
 	{
 		$time = WMCalendar::today_if_null($date);
-		return mktime(0, 0, 0, date('n', $time), date('t', $time), date('Y', $time));
+		return gmmktime(0, 0, 0, gmdate('n', $time), gmdate('t', $time), gmdate('Y', $time));
 	}
 
 	public static function start_of_week($date = null)
 	{
 		$time = WMCalendar::today_if_null($date);
-		$start = mktime(0, 0, 0, date('m', $time), (date('d', $time)+WMCalendar::WEEK_START)-date('w', $time), date('Y', $time));
+		$start = gmmktime(0, 0, 0, gmdate('m', $time), (gmdate('d', $time)+WMCalendar::WEEK_START)-gmdate('w', $time), gmdate('Y', $time));
 		if($start > $time) $start -= WMCalendar::WEEK;
 		return $start;
 	}
@@ -64,7 +64,7 @@ class WMCalendar
 
 		while( $day < $endofweek )
 		{
-			array_push($output, strftime("%a", $day));
+			array_push($output, gmstrftime("%a", $day));
 			$day = $day + WMCalendar::DAY;
 		}
 
@@ -84,7 +84,7 @@ class WMCalendar
 		}
 		if($caption_render == null)
 		{
-			$caption_render = create_function('$date', 'return \''.WMCalendar::WEEK_PREFIX.'\'.date(\'W\', $date);');
+			$caption_render = create_function('$date', 'return \''.WMCalendar::WEEK_PREFIX.'\'.gmdate(\'W\', $date);');
 		}
 		$output = '<table class="WMCalendar"><caption>'.call_user_func($caption_render, $this->supplied_date).'</caption><thead><th>';
 		$output.= implode('</th><th>', WMCalendar::week_days($this->supplied_date));
@@ -94,13 +94,12 @@ class WMCalendar
 		$lastday = WMCalendar::end_of_week($this->supplied_date);
 
 		$day = $firstday;
-
 		$output.= '<tr>';
 
 		while($day < $lastday)
 		{
-			$class = 'd'.date('j', $day).' m'.date('n', $day).' y'.date('Y', $day).' w'.date('W', $day);
-			if(date('j n Y', time()) == date('j n Y', $day)) $class.= ' today';
+			$class = 'd'.gmdate('j', $day).' m'.gmdate('n', $day).' y'.gmdate('Y', $day).' w'.gmdate('W', $day);
+			if(gmdate('j n Y', time()) == gmdate('j n Y', $day)) $class.= ' today';
 			$output.= '<td class="'.$class.'">'.call_user_func($day_render, $day).'</td>';
 			$day = $day + WMCalendar::DAY;
 		}
@@ -115,11 +114,11 @@ class WMCalendar
 	{
 		if($day_render == null)
 		{
-			$day_render = create_function('$day', 'return date(\'d\', $day);');
+			$day_render = create_function('$day', 'return gmdate(\'d\', $day);');
 		}
 		if($caption_render == null)
 		{
-			$caption_render = create_function('$date', 'return strftime(\'%B %Y\', $date);');
+			$caption_render = create_function('$date', 'return gmstrftime(\'%B %Y\', $date);');
 		}
 
 		$output = '';
@@ -133,19 +132,19 @@ class WMCalendar
 
 		$firstday = WMCalendar::start_of_week($start_of_month);
 		$lastday = WMCalendar::end_of_week($end_of_month);
-
+		
 		$day = $firstday;
 		$class = '';
 		$day_counter = 1;
 		while($day < $lastday)
 		{
-			$class = 'd'.date('j', $day).' m'.date('n', $day).' y'.date('Y', $day).' w'.date('W', $day);
-
+			$class = 'd'.gmdate('j', $day).' m'.gmdate('n', $day).' y'.gmdate('Y', $day).' w'.gmdate('W', $day);
 			if($day < $start_of_month) $class.= ' lastmonth';
 			else if($day > $end_of_month) $class.=' nextmonth';
 			else $class.= ' thismonth';
-			if(date('j n Y', time()) == date('j n Y', $day)) $class.= ' today';
-			if($day_counter % 7 == 1)
+			
+			if(gmdate('j n Y', time()) == gmdate('j n Y', $day)) $class.= ' today';
+			if($day_counter % 7 == 1 )
 			{
 				$output.= '<tr>';
 			}
@@ -155,7 +154,7 @@ class WMCalendar
 				$output.= '</tr>';
 			}
 			$day = $day + WMCalendar::DAY;
-			$day_counter++;
+			$day_counter ++;
 		}
 
 		$output.= '</tbody></table>';
