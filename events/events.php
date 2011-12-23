@@ -430,8 +430,8 @@ FORM;
 		echo $form;
 		
 		// convert $events_calendar_date to string (minus time), then back to int to get the numerical representation of the date for midnight on the same day
-		$current_events = $events_xml->xpath('//events/event[@event_date='.strtotime(gmdate('Y-m-d', $events_calendar_date)).']');
-		
+		//$current_events = $events_xml->xpath('//event_date='.strtotime(gmdate('Y-m-d', $events_calendar_date)).']');
+		$current_events = $events_xml->xpath('//event');
 		// old method (only works in English locale?)
 		//$current_events = $events_xml->xpath('//events/event[@event_date='.strtotime(date('j F Y', $events_calendar_date)).']');
 		$event_count = count($current_events);
@@ -563,7 +563,6 @@ function events_sidebar($events = null)
 	global $events_base_url, $events_xml;
 	// preload data
 	events_preload();
-	
 	if($events == null)
 	{
 		$events = $events_xml->xpath('//events/event[@event_date='.strtotime(gmdate('Y-m-d', time())).']');
