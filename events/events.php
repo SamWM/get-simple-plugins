@@ -437,7 +437,7 @@ FORM;
 		$event_count = count($current_events);
 		if($event_count > 0)
 		{
-			events_sidebar($current_events);
+			events_sidebar($current_events, $events_calendar_date);
 		}
 	}
 	else
@@ -558,7 +558,7 @@ function event_caption_render($event_date)
 	return utf8_encode('<span class="previousmonth">'.$previous_month_link.'</span> <span class="currentmonth">'.gmstrftime('%B %Y', $event_date).'</span> <span class="nextmonth">'.$next_month_link.'</span>');
 }
 
-function events_sidebar($events = null)
+function events_sidebar($events = null, $event_date)
 {
 	global $events_base_url, $events_xml;
 	// preload data
@@ -572,7 +572,9 @@ function events_sidebar($events = null)
 	{
 		foreach($events as $event)
 		{
-			add_action('pages-sidebar','createSideMenu',array('events&event_id='.$event['event_id'], 'Event: '.$event['event_title'])); 	
+			if(gmdate('j n Y', (int)$event['event_date']) == gmdate('j n Y', $event_date)) {
+				add_action('pages-sidebar','createSideMenu',array('events&event_id='.$event['event_id'], 'Event: '.$event['event_title']));
+			}
 		}
 	}
 }
