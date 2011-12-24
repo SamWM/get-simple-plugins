@@ -3,7 +3,7 @@
  * Simple calendar class
  *
  * @description   Show a calendar on a page and work with dates
- * @version       1.2
+ * @version       2.1j
  * @author		  Douglas Reynolds
  * @license		  https://github.com/dougrdotnet/get-simple-plugins/blob/master/LICENSE
  * @author        Sam Collett
