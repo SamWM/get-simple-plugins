@@ -3,7 +3,7 @@
  * Events
  *
  * @description   Simple event management
- * @version       2.1j
+ * @version       2.1.1j
  * @author		  Douglas Reynolds
  * @license		  https://github.com/dougrdotnet/get-simple-plugins/blob/master/LICENSE
  * @author        Sam Collett
@@ -17,9 +17,9 @@ $thisfile=basename(__FILE__, ".php");
 register_plugin(
 	$thisfile, 
 	'Events',
-	'2.1j',
-	'Sam Collett',
-	'http://www.texotela.co.uk', 
+	'2.1.1j',
+	'Douglas Reynolds',
+	'http://douglasreynoldsconsulting.com', 
 	'Manage Events',
 	'pages',
 	'events_form'  
