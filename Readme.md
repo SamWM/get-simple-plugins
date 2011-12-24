@@ -6,15 +6,11 @@
 
 * List files (tagged with the current pages 'slug') with:
 
-		```php
 		<?php echo file_meta_list('tags', return_page_slug()) ?>
-		```
 
 * Or just tagged 'leaflet':
 
-		```php
 		<?php echo file_meta_list('tags', 'leaflet') ?>
-		```
 
 ##Events (events/events.php)
 
@@ -22,21 +18,15 @@
 
 * Show events on page by editing the template and adding the following:
 
-		```php
 		<?php echo events_list() ?>
-		```
 
 * Show the calendar (for navigation):
 
-		```php
 		<?php echo events_calendar() ?>
-		```
 
 * Show upcoming events (e.g. in the sidebar):
 
-		```php
 		<?php echo '<h2>Upcoming events</h2><div class="feature">'.upcoming_events($SITEURL.'events/', 'strong').'</div>' ?>
-		```
 
 * `upcoming_events` has three arguments: $base_url, $date_heading_tag, $limit
 $base_url is the page the the links are on. $date_heading_tag is the tag to wrap the
