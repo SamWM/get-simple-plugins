@@ -1,5 +1,9 @@
 #Get-Simple-Plugin Events
 Master Branch is the development version of Events plugin.  Please see the "Current Branch" dropdown list for stable versions.
+Please be aware, all but the newest version should be used with caution as they may be out of date and are no longer supported.
+
+##Compatibility
+GetSimple CMS v3.0
 
 ##File Meta Info (file-info/file-info.php)
 
